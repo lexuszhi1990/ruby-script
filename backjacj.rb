@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 #craet a random poker
+#p = initpoker(num). 1-> 13; 2 -> 26; 3 -> 39; 4 -> 52.
 def creatpoker(frequence)
   poker  = Array.new()
   i = 0;
@@ -11,8 +12,6 @@ def creatpoker(frequence)
         poker.push(i.to_s)
     end
   end
-  
-  puts poker.sort.to_s
 
   poker.collect! do |x|
     if(x == "1"); x = "A"; end
@@ -21,13 +20,12 @@ def creatpoker(frequence)
     if(x == "13"); x = "K"; end
     x
   end
+
   puts poker.to_s
+  puts poker.sort.to_s
 
   return poker
 end
-
-#p = initpoker(2)
-#puts cards = (1...11).to_a
 
 class Person
   attr_reader :points
@@ -74,12 +72,13 @@ def compare(p)
     end
 end
 
-
+#programe starts here
 
 cards = (1...11).to_a.collect! { |x| x.to_s }
 puts cards.to_s
-#use .sample to relist it
-cards = cards.sample(10)
+#use .sample to reindex it
+cards = cards.sample(10, random:rand(10))
+puts cards.to_s
 
 points = { player: 0, dealer: 0}
 player = Array.new(0)
@@ -121,6 +120,7 @@ loop do
         list.push(card)
         player.push(card)
         points[:player] = calculate(player)
+        puts "player's points is " +  points[:player].to_s
 
         if points[:player] > 21
             puts "Player bust"
@@ -130,7 +130,6 @@ loop do
             puts "Player win by 21"
             break;
         end
-        puts "player's points is " +  points[:player].to_s
 
     else
         pstat = true
@@ -145,7 +144,7 @@ loop do
     if points[:dealer] >= 17
        choice = "stay" 
     else
-       choice = hit
+       choice = "hit"
     end
     if(choice == "hit")
         dstat = false
@@ -155,6 +154,7 @@ loop do
         list.push(card)
         dealer.push(card)
         points[:dealer] = calculate(dealer)
+        puts "dealer's points is " +  points[:dealer].to_s
 
         if points[:dealer] > 21
             puts "dealer bust, and player win!"
@@ -164,15 +164,9 @@ loop do
             puts "dealer win by 21"
             break;
         end
-        puts "dealer's points is " +  points[:dealer].to_s
-
 
     else
         dstat = true
-        if pstat == true
-            compare(points)
-            break;
-        end
         puts "you choose to stay... now switch to player"  
     end
 
