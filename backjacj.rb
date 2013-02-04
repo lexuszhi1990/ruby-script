@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-def initpoker(frequence)
+#craet a random poker
+def creatpoker(frequence)
   poker  = Array.new()
   i = 0;
   while(poker.length < frequence * 13)
@@ -77,6 +78,8 @@ end
 
 cards = (1...11).to_a.collect! { |x| x.to_s }
 puts cards.to_s
+#use .sample to relist it
+cards = cards.sample(10)
 
 points = { player: 0, dealer: 0}
 player = Array.new(0)
@@ -138,9 +141,12 @@ loop do
         puts "you choose to stay... now switch to dealer"  
     end
 
-    puts "dealer,your cards : #{dealer.to_s}, points : #{points[:dealer]}.
-            please make a choice : hit or stay ... :)"
-    choice = getchoice
+    puts "dealer,your cards : #{dealer.to_s}, points : #{points[:dealer]}."
+    if points[:dealer] >= 17
+       choice = "stay" 
+    else
+       choice = hit
+    end
     if(choice == "hit")
         dstat = false
 
@@ -151,7 +157,7 @@ loop do
         points[:dealer] = calculate(dealer)
 
         if points[:dealer] > 21
-            puts "dealer bust"
+            puts "dealer bust, and player win!"
             break;
         end
         if points[:dealer] == 21
