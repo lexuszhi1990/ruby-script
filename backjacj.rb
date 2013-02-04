@@ -10,9 +10,7 @@ def initpoker(frequence)
         poker.push(i.to_s)
     end
   end
-
   
-  puts poker.to_s
   puts poker.sort.to_s
 
   poker.collect! do |x|
@@ -27,9 +25,39 @@ def initpoker(frequence)
   return poker
 end
 
-p = initpoker(2)
+#p = initpoker(2)
 
-cards = ["A"] + (2...10).to_a.collect!{ |x| x.to_s }
+puts cards = ["A"] + (2...10).to_a.collect!{ |x| x.to_s } + ["10"]
+
+points = { player: 0, dealer: 0}
+player = Array.new(0)
+dealer = Array.new(0)
+list = Array.new(0)
+
+card = cards.pop(2)
+puts card.to_s
+list.push(card)
+player.push(card)
+
+card = cards.pop(2)
+puts card.to_s
+list.push(card)
+dealer.push(card)
+
+puts "player, please make a choice : hit or stay ... :)"
+choice = gets.chomp
+if(choice == "hit")
+
+else if(choice == "stay")
+
+    else
+    
+    end
+end
+
+
+
+
 
 
 
