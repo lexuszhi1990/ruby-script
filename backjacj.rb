@@ -28,31 +28,19 @@ end
 #p = initpoker(2)
 #puts cards = (1...11).to_a
 
-cards = (1...11).to_a.collect! { |x| x.to_s }
-puts cards.to_s
+class Person
+  attr_reader :points
 
-points = { player: 0, dealer: 0}
-player = Array.new(0)
-dealer = Array.new(0)
-list = Array.new(0)
+  def initialize(name)
+      @name = name
+      @points = 0
+  end
+  
+  def add(card)
+      @points += card.to_i      
+  end
 
-if(cards.length < 9)
-  puts "the card is wrong"
-  return
 end
-card = cards.pop()
-list.push(card)
-player.push(card)
-card = cards.pop()
-list.push(card)
-player.push(card)
-
-card = cards.pop()
-list.push(card)
-dealer.push(card)
-card = cards.pop()
-list.push(card)
-    dealer.push(card)
 
 def calculate(person)
   sum = 0
@@ -71,11 +59,55 @@ def getchoice
     s
 end
 
+def compare(p)
+    puts "player:#{p[:player]} ~ dealer:#{p[:dealer]}"
+
+    if p[:player] > p[:dealer]
+        puts "player win!" 
+    end
+    if p[:player] < p[:dealer]
+        puts "dealer win!" 
+    end
+    if p[:player] == p[:dealer]
+        puts "tie!" 
+    end
+end
+
+
+
+cards = (1...11).to_a.collect! { |x| x.to_s }
+puts cards.to_s
+
+points = { player: 0, dealer: 0}
+player = Array.new(0)
+dealer = Array.new(0)
+list = Array.new(0)
+
+if(cards.length < 9)
+  puts "the card is wrong"
+  return
+end
+card = cards.pop()
+list.push(card)
+player.push(card)
+card = cards.pop()
+list.push(card)
+player.push(card)
+points[:player] = calculate(player)
+
+card = cards.pop()
+list.push(card)
+dealer.push(card)
+card = cards.pop()
+list.push(card)
+dealer.push(card)
+points[:dealer] = calculate(dealer)
+
 loop do
     pstat = false
-    dsate = false
+    dstat = false
 
-    puts "Player, your cards : #{player.to_s};
+    puts "Player, your cards : #{player.to_s}, points : #{points[:player]}
              please make a choice : hit or stay ... :)"
     choice = getchoice
     if(choice == "hit")
@@ -88,21 +120,25 @@ loop do
         points[:player] = calculate(player)
 
         if points[:player] > 21
-            puts "Player lose"
+            puts "Player bust"
             break;
         end
         if points[:player] == 21
-            puts "Player win"
+            puts "Player win by 21"
             break;
         end
         puts "player's points is " +  points[:player].to_s
 
     else
         pstat = true
+        if dstat == true
+            compare(points)
+            break;
+        end
         puts "you choose to stay... now switch to dealer"  
     end
 
-    puts "dealer,your cards : #{dealer.to_s};
+    puts "dealer,your cards : #{dealer.to_s}, points : #{points[:dealer]}.
             please make a choice : hit or stay ... :)"
     choice = getchoice
     if(choice == "hit")
@@ -115,11 +151,11 @@ loop do
         points[:dealer] = calculate(dealer)
 
         if points[:dealer] > 21
-            puts "dealer lose"
+            puts "dealer bust"
             break;
         end
         if points[:dealer] == 21
-            puts "dealer win"
+            puts "dealer win by 21"
             break;
         end
         puts "dealer's points is " +  points[:dealer].to_s
@@ -127,11 +163,12 @@ loop do
 
     else
         dstat = true
+        if pstat == true
+            compare(points)
+            break;
+        end
         puts "you choose to stay... now switch to player"  
     end
-
-
-
 
 
 end
