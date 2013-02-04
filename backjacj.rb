@@ -62,12 +62,22 @@ def calculate(person)
   sum
 end
 
+def getchoice
+    s = gets.chomp
+    while(s != "hit" && s != "stay")
+        puts "please input the right choice"
+        s = gets.chomp
+    end
+    s
+end
+
 loop do
     pstat = false
     dsate = false
 
-    puts "player, please make a choice : hit or stay ... :)"
-    choice = gets.chomp
+    puts "Player, your cards : #{player.to_s};
+             please make a choice : hit or stay ... :)"
+    choice = getchoice
     if(choice == "hit")
         pstat = false
 
@@ -79,9 +89,11 @@ loop do
 
         if points[:player] > 21
             puts "Player lose"
+            break;
         end
         if points[:player] == 21
             puts "Player win"
+            break;
         end
         puts "player's points is " +  points[:player].to_s
 
@@ -90,8 +102,9 @@ loop do
         puts "you choose to stay... now switch to dealer"  
     end
 
-    puts "dealer, please make a choice : hit or stay ... :)"
-    choice = gets.chomp
+    puts "dealer,your cards : #{dealer.to_s};
+            please make a choice : hit or stay ... :)"
+    choice = getchoice
     if(choice == "hit")
         dstat = false
 
@@ -103,9 +116,11 @@ loop do
 
         if points[:dealer] > 21
             puts "dealer lose"
+            break;
         end
         if points[:dealer] == 21
             puts "dealer win"
+            break;
         end
         puts "dealer's points is " +  points[:dealer].to_s
 
@@ -119,10 +134,6 @@ loop do
 
 
 
-    if(pstat == true && dstat == true) 
-      
-      break;
-    end
 end
 
 
