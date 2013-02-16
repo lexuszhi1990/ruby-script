@@ -20,7 +20,7 @@ class Card
   end
 
   def pretty_output
-    puts "The #{@face_value} of #{find_suit}"
+    "The #{@face_value} of #{find_suit}"
   end
 
   def to_s
@@ -63,12 +63,6 @@ class Deck
 end
 
 module Hand
-  attr_reader :name, :cards
-
-  def initialize(name="ZHI")
-      @name = name
-      @cards = []
-  end
 
   def show_hand
     puts "---- #{@name}'s Hand ----"
@@ -79,8 +73,7 @@ module Hand
   end
   
   def total
-    face_values = cards.map { |card|  card.face_value}
-
+    face_values = cards.map { |card|  card.face_value if !card.nil?}
     total = 0
     face_values.each do |fv|
         if fv == "A"
@@ -107,148 +100,172 @@ module Hand
     total > Blackjack::BLACKJACK_AMOUNT
   end
 
+  def clear_cards
+    cards.clear
+  end
+
 end
-
-
 
 
 class Player
   include Hand
+  attr_reader :name, :cards
+
+  def initialize(name="ZHI")
+      @name = name
+      @cards = []
+  end
   
 end
 
+class Dealer
+  include Hand
+  attr_reader :name, :cards
 
+  def initialize(name="Dealer")
+      @name = name
+      @cards = []
+  end
+
+  def show_hand
+    puts "---- #{@name}'s Hand ----"
+    puts "The first card is hidden"
+    @cards[1..-1].each do |card|
+      puts "=> #{card}"
+    end
+  end
+  
+end
 
 class Blackjack
+  attr_reader :player, :dealer, :deck
+
   BLACKJACK_AMOUNT = 21
-end
+  DEALER_HIT_MIN = 17
 
-binding.pry
 
-def getchoice
-    s = gets.chomp
-    while(s != "hit" && s != "stay")
-        puts "please input the right choice"
-        s = gets.chomp
+  def initialize
+    @deck = Deck.new
+    @player = Player.new
+    @dealer = Dealer.new
+  end
+
+  def getchoice
+      s = gets.chomp
+      while(s != "1" && s != "2")
+          puts "please input the right choice, 1 or 2"
+          s = gets.chomp
+      end
+      s
+  end
+
+  def blackjack_or_bust?(player_or_dealer)
+    if player_or_dealer.total == BLACKJACK_AMOUNT
+      if player_or_dealer.is_a?(Dealer)
+        puts "Sorry, dealer hit blackjack. #{player.name} loses."
+      else
+        puts "Congratulations, you hit blackjack! #{player.name} win!"
+      end
+      play_again?
+    elsif player_or_dealer.is_busted?
+      if player_or_dealer.is_a?(Dealer)
+        puts "Congratulations, dealer busted. #{player.name} win!"
+      else
+        puts "Sorry, #{player.name} busted. #{player.name} loses."
+      end
+      play_again?
     end
-    s
-end
+  end
 
-def compare(p)
-    puts "player:#{p[:player]} ~ dealer:#{p[:dealer]}"
+  def deal_cards
+    @player.add_card(@deck.deal_one)
+    @dealer.add_card(@deck.deal_one)
+    @player.add_card(@deck.deal_one)
+    @dealer.add_card(@deck.deal_one)
+  end
 
-    if p[:player] > p[:dealer]
-        puts "player win!" 
+  def show_flop
+    @player.show_hand
+    @dealer.show_hand
+  end
+
+  def player_turn
+    puts "Now, it's player's turn..."
+
+    while !@player.is_busted?
+      puts "make a choice : 1> hit, 2> stay"
+      res = getchoice
+      if res == '2'
+       puts "#{player.name} chose to stay."
+        break
+      end
+
+      new_card = @deck.deal_one
+      puts "Dealing card to #{@player.name}: #{new_card}"
+      @player.add_card(new_card)
+      puts "#{@player.name}'s total is now: #{player.total}"
+      blackjack_or_bust?(@player)
     end
-    if p[:player] < p[:dealer]
-        puts "dealer win!" 
+    puts "#{@player.name} stay at #{player.total}"
+  end
+
+  def dealer_turn
+    puts "Now, it's dealer's turn..."
+
+    while @dealer.total < DEALER_HIT_MIN
+      new_card = @deck.deal_one
+      puts "Dealing card to #{@dealer.name}: #{new_card}"
+      @dealer.add_card(new_card)
+      puts "#{@dealer.name}'s total is now: #{@dealer.total}"
+      blackjack_or_bust?(@dealer)
     end
-    if p[:player] == p[:dealer]
-        puts "tie!" 
-    end
-end
+    puts "#{@dealer.name} stay at #{dealer.total}"
+  end
 
-#programe starts here
-
-cards = (1...11).to_a.collect! { |x| x.to_s }
-puts cards.to_s
-#use .sample to reindex it
-cards = cards.sample(10, random:rand(10))
-puts cards.to_s
-
-points = { player: 0, dealer: 0}
-player = Array.new(0)
-dealer = Array.new(0)
-list = Array.new(0)
-
-if(cards.length < 9)
-  puts "the card is wrong"
-  return
-end
-card = cards.pop()
-list.push(card)
-player.push(card)
-card = cards.pop()
-list.push(card)
-player.push(card)
-points[:player] = calculate(player)
-
-card = cards.pop()
-list.push(card)
-dealer.push(card)
-card = cards.pop()
-list.push(card)
-dealer.push(card)
-points[:dealer] = calculate(dealer)
-
-loop do
-    pstat = false
-    dstat = false
-
-    puts "Player, your cards : #{player.to_s}, points : #{points[:player]}
-             please make a choice : hit or stay ... :)"
-    choice = getchoice
-    if(choice == "hit")
-        pstat = false
-
-        card = cards.pop()
-        puts card.to_s
-        list.push(card)
-        player.push(card)
-        points[:player] = calculate(player)
-        puts "player's points is " +  points[:player].to_s
-
-        if points[:player] > 21
-            puts "Player bust"
-            break;
-        end
-        if points[:player] == 21
-            puts "Player win by 21"
-            break;
-        end
-
+  def who_won?
+    if player.total > dealer.total
+      puts "Congratulations, #{player.name} wins!"
+    elsif player.total < dealer.total
+      puts "Sorry, #{player.name} loses."
     else
-        pstat = true
-        if dstat == true
-            compare(points)
-            break;
-        end
-        puts "you choose to stay... now switch to dealer"  
+      puts "It's a tie!"
     end
+    play_again?
+  end
 
-    puts "dealer,your cards : #{dealer.to_s}, points : #{points[:dealer]}."
-    if points[:dealer] >= 17
-       choice = "stay" 
+  def play_again?
+    puts ""
+    puts "Would you like to play again? 1) yes 2) no, exit"
+    res = getchoice
+    if res == '1'
+      puts "Starting new game..."
+      puts ""
+      deck = Deck.new
+      player.clear_cards
+      dealer.clear_cards
+      start
     else
-       choice = "hit"
-    end
-    if(choice == "hit")
-        dstat = false
+      puts "Goodbye!"
+      exit
+    end 
+  end
 
-        card = cards.pop()
-        puts card.to_s
-        list.push(card)
-        dealer.push(card)
-        points[:dealer] = calculate(dealer)
-        puts "dealer's points is " +  points[:dealer].to_s
-
-        if points[:dealer] > 21
-            puts "dealer bust, and player win!"
-            break;
-        end
-        if points[:dealer] == 21
-            puts "dealer win by 21"
-            break;
-        end
-
-    else
-        dstat = true
-        puts "you choose to stay... now switch to player"  
-    end
-
-
+  def start
+    deal_cards
+    show_flop
+    player_turn
+    dealer_turn
+    who_won?
+  end
 end
 
 
+class Game < Blackjack
 
+end
+
+bj = Blackjack.new
+bj.start
+#binding.pry
+exit
 
