@@ -62,30 +62,68 @@ class Deck
   end
 end
 
-binding.pry
+module Hand
+  attr_reader :name, :cards
 
-
-class Person
-  attr_reader :points
-
-  def initialize(name)
+  def initialize(name="ZHI")
       @name = name
-      @points = 0
+      @cards = []
+  end
+
+  def show_hand
+    puts "---- #{@name}'s Hand ----"
+    @cards.each do |card|
+      puts "=> #{card}"
+    end
+    puts "=> Total: #{total}"
   end
   
-  def add(card)
-      @points += card.to_i      
+  def total
+    face_values = cards.map { |card|  card.face_value}
+
+    total = 0
+    face_values.each do |fv|
+        if fv == "A"
+          total += 11
+        else
+          total += (fv.to_i == 0 ? 10 : fv.to_i)
+        end
+    end
+
+    face_values.select { |val| val == 'A' }.count.times do 
+      break if total <= 21
+      total -= 10
+    end
+    
+    total
+
+  end
+  
+  def add_card(new_card)
+    cards << new_card
+  end
+
+  def is_busted?
+    total > Blackjack::BLACKJACK_AMOUNT
   end
 
 end
 
-def calculate(person)
-  sum = 0
-  person.each do |x|
-    sum = sum + x.to_i
-  end
-  sum
+
+
+
+class Player
+  include Hand
+  
 end
+
+
+
+class Blackjack
+  BLACKJACK_AMOUNT = 21
+end
+
+binding.pry
 
 def getchoice
     s = gets.chomp
