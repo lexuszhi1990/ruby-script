@@ -10,7 +10,7 @@ class Card
   end
   
   def find_suit
-    ret = case suit
+    ret = case @suit
           when 'H' then "Hearts"
           when 'D' then "Diamonds"
           when 'S' then "Spades"
@@ -20,7 +20,7 @@ class Card
   end
 
   def pretty_output
-    puts "The #{face_value} of #{find_suit}"
+    puts "The #{@face_value} of #{find_suit}"
   end
 
   def to_s
@@ -29,36 +29,41 @@ class Card
 
 end
 
-card  = Card.new("H", 2)
-card.to_s
-exit
+class Deck
+  attr_reader :cards
 
-#craet a random poker
-#p = initpoker(num). 1-> 13; 2 -> 26; 3 -> 39; 4 -> 52.
-def creatpoker(frequence)
-  poker  = Array.new()
-  i = 0;
-  while(poker.length < frequence * 13)
-    loop do  i = rand(14); break if i != 0  end
+  def initialize
+    @cards = []
+    ['H', 'C', 'S', 'D'].each do |s|
+      ['2', '3', '4', '5', '6', '7', '8','9',
+                    '10', 'J', 'Q', 'K', 'A'].each do |fv|
+          @cards << Card.new(s, fv)
+      end
+    end
+    scramble!
+  end
 
-    if(poker.count(i.to_s) < frequence)
-        poker.push(i.to_s)
+  def scramble!
+    @cards.shuffle!
+  end
+
+  def size
+    @cards.size
+  end
+
+  def deal_one
+    @cards.pop
+  end
+
+  def to_s
+    @cards.each do |card|
+        card.pretty_output
     end
   end
-
-  poker.collect! do |x|
-    if(x == "1"); x = "A"; end
-    if(x == "11"); x = "J"; end
-    if(x == "12"); x = "Q"; end
-    if(x == "13"); x = "K"; end
-    x
-  end
-
-  puts poker.to_s
-  puts poker.sort.to_s
-
-  return poker
 end
+
+binding.pry
+
 
 class Person
   attr_reader :points
