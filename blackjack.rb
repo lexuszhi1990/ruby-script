@@ -1,4 +1,37 @@
 #!/usr/bin/env ruby
+require 'rubygems'
+require 'pry'
+
+class Card
+  attr_reader :suit, :face_value
+  def initialize(s, fv)
+    @suit = s
+    @face_value = fv
+  end
+  
+  def find_suit
+    ret = case suit
+          when 'H' then "Hearts"
+          when 'D' then "Diamonds"
+          when 'S' then "Spades"
+          when 'C' then "Clubs"
+          end 
+    ret
+  end
+
+  def pretty_output
+    puts "The #{face_value} of #{find_suit}"
+  end
+
+  def to_s
+    pretty_output
+  end
+
+end
+
+card  = Card.new("H", 2)
+card.to_s
+exit
 
 #craet a random poker
 #p = initpoker(num). 1-> 13; 2 -> 26; 3 -> 39; 4 -> 52.
